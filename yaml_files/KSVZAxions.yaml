@@ -1,0 +1,172 @@
+# An example YAML file for QCD axion scans
+# Author: Sebastian Hoof (hoof@uni-goettingen.de)
+
+#################################
+ # Input parameter declarations
+#################################
+
+Parameters:
+  KSVZAxion:
+    fa:
+      range: [1.0e6, 1.0e16]
+      prior_type: log
+    EoverN:
+      prior_type: histogram
+      hist_data: [0.666667, 2.666667, 1.666667, 5.666667, 9.666667, 4.666667, 6.666667, 14.666667, 0.266667, 1.066667, 0.666667, 2.666667, 1.333333, 0.166667, 0.666667, 20.666667, 7.666667, 11.666667, 15.666667, 0.416667]
+    thetai:
+      range: [-3.14159, 3.14159]
+      prior_type: flat
+    LambdaChi:
+    Tchi:
+    beta:
+    CaggQCD:
+  Halo_gNFW_rho0:
+    rho0:
+      prior_type: lognormal
+      base: 10
+      mu: -0.397940008672038
+      sigma: 0.15
+    v0: 235.0
+    vesc: 550.0
+    vrot: 235.0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+  LCDM:
+    omega_b: 0.02242
+    omega_cdm: 0.11933
+    H0: 67.66
+    tau_reio: 0.0561
+    T_cmb: 2.72548
+
+#################################
+ # Prior setup
+#################################
+
+Priors:
+  qcd_theory:
+    parameters: ["KSVZAxion::LambdaChi", "KSVZAxion::Tchi", "KSVZAxion::beta", "KSVZAxion::CaggQCD"]
+    prior_type: gaussian
+    mu: [75.42954, 143.7390, 7.750749, 1.926415]
+    cov_matrix: [[ 1.15409424e-01, -1.18051827e-01, -1.65828058e-04, -9.36705765e-04],
+                 [-1.18051827e-01,  8.40448007e+00,  2.99352741e-01,  1.07655370e-03],
+                 [-1.65828058e-04,  2.99352741e-01,  1.18961999e-02,  5.05977284e-06],
+                 [-9.36705765e-04,  1.07655370e-03,  5.05977284e-06,  8.36278020e-04]]
+
+#################################
+ # Printer setup
+#################################
+
+Printer:
+  #printer: hdf5
+  #options:
+  #  output_file: "KSVZAxion_new.hdf5"
+  #  group: "/KSVZAxion"
+  #  delete_file_on_restart: true
+  printer: ascii
+  options:
+    output_file: "KSVZAxion_new.dat"
+    buffer_length: 10
+    delete_file_on_restart: true
+
+#################################
+ # Scanner setup
+#################################
+
+Scanner:
+  use_scanner: random
+
+  scanners:
+    mn:
+      plugin: multinest
+      like: LogLike
+      nlive: 20000
+      tol: 1.0E-4
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 20000
+      convthresh: 1.0E-4
+      jDE: true
+      lambdajDE: false
+      verbosity: 1
+    tw:
+      plugin: twalk
+      like: LogLike
+      sqrtR: 1.01
+    random:
+      plugin: random
+      point_number: 10000
+      like:  LogLike
+
+#################################
+ # likelihoods and observables
+#################################
+
+ObsLikes:
+  # Dark matter likelihood
+  - capability: lnL_oh2
+    purpose: LogLike
+    function: lnL_oh2_upperlimit
+  # Experimental searches
+  - capability: lnL_CAST2007
+    purpose: LogLike
+  - capability: lnL_CAST2017
+    purpose: LogLike
+  - capability: lnL_ALPS1
+    purpose: LogLike
+  - capability: lnL_SN1987A
+    purpose: LogLike
+  - capability: lnL_Haloscope_ADMX1
+    purpose: LogLike
+  - capability: lnL_Haloscope_ADMX2
+    purpose: LogLike
+  - capability: lnL_Haloscope_RBF
+    purpose: LogLike
+  - capability: lnL_Haloscope_UF
+    purpose: LogLike
+  - capability: lnL_HESS_GCMF
+    purpose: LogLike
+  - capability: lnL_RParameter
+    purpose: LogLike
+
+  # Observables
+  - capability: AxionOscillationTemperature
+    purpose: Observable
+  - capability: RD_oh2
+    function: RD_oh2_Axions
+    purpose: Observable
+
+#########################
+ # Rules
+#########################
+
+Rules:
+  - capability: RD_oh2
+    function: RD_oh2_Axions
+  - capability: RD_fraction
+    function: RD_fraction_leq_one
+
+#########################
+ # Logging setup
+#########################
+
+Logger:
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DarkBit] : "DarkBit.log"
+
+#########################
+ # Global options
+#########################
+
+KeyValues:
+  default_output_path: "runs/KSVZAxion"
+  likelihood:
+    model_invalid_for_lnlike_below: -1.0e6
+  debug: false
+
+# End of file
