@@ -67,7 +67,7 @@ Printer:
   #  delete_file_on_restart: true
   printer: ascii
   options:
-    output_file: "KSVZAxion_new.dat"
+    output_file: "KSVZAxion_Q3_all.dat"
     buffer_length: 10
     delete_file_on_restart: true
 
